@@ -1,41 +1,32 @@
 package main
 
-import ("fmt" 
+import (
+	"fmt"
+	
 )
-type Numbers struct {
-    num1 int
-    num2 int
-}
 
-type NumbersInterface interface {
-    Sum() int
-    Multiply() int
-    Division() float64
-    Substract() int
-}
-
- func (n Numbers) Sum() int {
-    return n.num1 + n.num2
- }
- func (n Numbers) Multiply() int {
-    return n.num1 * n.num2
- }
- func (n Numbers) Division() float64 {
-    return float64(n.num1) / float64(n.num2)
- }
- func (n Numbers) Substract() int {
-    return n.num1 - n.num2
- }
 func main() {
 
-var i NumbersInterface
+ch := make(chan int)
 
-numbers := Numbers{64546, 7576}
+ go say("Hello Go!!!!", ch)
 
-i = numbers
+for a := range ch {
+    fmt.Println(a)
+}
+fmt.Println(<-ch)
+fmt.Println(<-ch)
+fmt.Println(<-ch)
+fmt.Println(<-ch)
+}
 
-fmt.Println("Суммировать: %d\n", i.Sum())
-fmt.Println("Умножить : %d\n", i.Multiply())
-fmt.Println("Поделить: %d\n", i.Division())
-fmt.Println("Отнять: %d\n", i.Substract())
-}  
+func say(greet string, ch chan int) {
+
+for i := 0; i <= 5; i++ {
+    fmt.Println(i)
+    ch <- i
+}
+
+close(ch)
+ch <- 1
+}
