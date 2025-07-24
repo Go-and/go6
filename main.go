@@ -2,45 +2,46 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"sync"
-	
+	"time"
 )
 
+var maxWaitSeconds = 5
+
+
+func randomWait() int {
+    workSeconds := rand.Intn(5 + 1) 
+    time.Sleep(time.Duration(workSeconds) * time.Second)
+    return workSeconds
+}
+
+
 func main() {
-var money int32   
-var donationsCount int32
- 
-mutex := &sync.RWMutex{}
+   wg := &sync.WaitGroup{}
+   locker := &sync.Mutex{}
+    totalWorkSeconds := 0
 
+ start := time.Now()
+ wg.Add(100)
+for range 100 {
 
-go func()  {
- for {
-    mutex.RLock()
-    m := money
-    dc := donationsCount
-    mutex.RUnlock()
- if m != dc {
-    fmt.Println("money =", m, "donations =", dc)
-    break
- }
-    
- }
+go func() {
+    defer wg.Done()
+    seconds := randomWait()
+    locker.Lock()
+    totalWorkSeconds += seconds
+    locker.Unlock()
 }()
 
-wg := &sync.WaitGroup{}
 
-wg.Add(1000)
-for range 1000 {
-    go func() {
-        defer wg.Done()
-        mutex.Lock()
-        money ++
-        donationsCount ++
-        mutex.Unlock()
-    }()
+    
 }
-     wg.Wait()
- fmt.Println(money)
+wg.Wait()
+mainSeconds := time.Since(start)
+fmt.Println("main", mainSeconds)
+fmt.Println("total:", totalWorkSeconds, "seconds")
+
 }
 
 
