@@ -3,34 +3,44 @@ package main
 import (
 	"fmt"
 	"sync"
+	
 )
 
-func foo(wg *sync.WaitGroup) {
-    defer wg.Done()
-    fmt.Println("hello from foo")
-}
-
-
 func main() {
+var money int32   
+var donationsCount int32
+ 
+mutex := &sync.RWMutex{}
+
+
+go func()  {
+ for {
+    mutex.RLock()
+    m := money
+    dc := donationsCount
+    mutex.RUnlock()
+ if m != dc {
+    fmt.Println("money =", m, "donations =", dc)
+    break
+ }
+    
+ }
+}()
 
 wg := &sync.WaitGroup{}
 
-
-wg.Add(1)
-     go func() {
+wg.Add(1000)
+for range 1000 {
+    go func() {
         defer wg.Done()
-fmt.Println("hello from goroutine")
-     }()
-
-     wg.Add(1)
-go foo(wg)
- 
-wg.Wait()
-
-
-fmt.Println("hello from main")
-     
-
+        mutex.Lock()
+        money ++
+        donationsCount ++
+        mutex.Unlock()
+    }()
+}
+     wg.Wait()
+ fmt.Println(money)
 }
 
 
